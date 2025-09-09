@@ -12,7 +12,7 @@ def valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
 def enviar_a_servidor_local(email, archivos):
-    url_local = 'http://hybrydportalfacturas-app:5001/upload'
+    url_local = 'http://192.168.10.14:5001/upload'
     files = {}
     for tipo, archivo in archivos.items():
         if archivo and allowed_file(archivo.filename):
