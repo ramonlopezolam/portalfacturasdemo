@@ -53,32 +53,29 @@
             <form id="invoiceForm" method="POST" enctype="multipart/form-data">
               <div id="mensajeError"></div>
 
-              <form id="invoiceForm" method="POST" enctype="multipart/form-data">
-                <div class="mb-3">
-                  <label for="email" class="form-label">Correo electrónico:</label>
-                  <input type="email" class="form-control" name="email" id="email" placeholder="nombre@empresa.com"
-                    required>
-                </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo electrónico:</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="nombre@empresa.com" required>
+              </div>
 
-                <div class="mb-3">
-                  <label for="factura" class="form-label">Seleccionar Factura:</label>
-                  <input type="file" class="form-control" id="factura" name="factura" accept="application/pdf" required>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="orden" class="form-label">Seleccionar Orden de Compra:</label>
-                  <input type="file" class="form-control" id="orden" name="orden" accept="application/pdf" required>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="remision" class="form-label">Seleccionar Remisión/Actas:</label>
-                  <input type="file" class="form-control" id="remision" name="remision" accept="application/pdf" required>
-                </div>
-                
+              <div class="mb-3">
+                <label for="factura" class="form-label">Seleccionar Factura:</label>
+                <input type="file" class="form-control" id="factura" name="factura" accept="application/pdf" required>
+              </div>
 
-                <button type="submit" class="btn btn-success w-100">Enviar</button>
-              </form>
+              <div class="mb-3">
+                <label for="orden" class="form-label">Seleccionar Orden de Compra:</label>
+                <input type="file" class="form-control" id="orden" name="orden" accept="application/pdf" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="remision" class="form-label">Seleccionar Remisión/Actas:</label>
+                <input type="file" class="form-control" id="remision" name="remision" accept="application/pdf" required>
+              </div>
+
+              <button type="submit" class="btn btn-success w-100">Enviar</button>
             </form>
+
           </div>
         </div>
       </div>
