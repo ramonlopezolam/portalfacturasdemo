@@ -3,6 +3,7 @@ import os
 import re
 from werkzeug.utils import secure_filename
 from openpyxl import load_workbook, Workbook
+import requests  # <-- NUEVO
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_para_flash'
@@ -25,24 +26,43 @@ def guardar_correo_en_excel(email):
     os.makedirs(EMAIL_EXCEL_FOLDER, exist_ok=True)
 
     if not os.path.exists(EMAIL_EXCEL_FILE):
-        # Crear archivo nuevo con encabezado
         wb = Workbook()
         ws = wb.active
         ws.title = "Correos"
-        ws.append(["ID", "Correo"])  # encabezado
+        ws.append(["ID", "Correo"])
         wb.save(EMAIL_EXCEL_FILE)
         wb.close()
 
-    # Cargar el archivo existente
     wb = load_workbook(EMAIL_EXCEL_FILE)
     ws = wb.active
-
-    # Calcular nuevo ID (última fila)
     new_id = ws.max_row
     ws.append([new_id, email])
-
     wb.save(EMAIL_EXCEL_FILE)
     wb.close()
+
+# NUEVO: Enviar a servidor local
+def enviar_a_servidor_local(email, archivos):
+    url_local = 'http://hybrydportalfacturas-app' # REEMPLAZA con la IP o nombre de Hybrid Connection
+
+    files = {}
+    for tipo, archivo in archivos.items():
+        if archivo and allowed_file(archivo.filename):
+            archivo.stream.seek(0)
+            files[tipo] = (archivo.filename, archivo.stream, 'application/pdf')
+
+    data = {'email': email}
+    
+    headers = {'Authorization': 'Bearer 9f82a7f1-2341-456c-b812-9abcde123457'} 
+
+    try:
+        response = requests.post(url_local, files=files, data=data, headers=headers)  # <-- Aquí agregás headers
+        if response.status_code == 200:
+            flash('Datos enviados al servidor local correctamente.')
+        else:
+            flash(f'Error al enviar datos al servidor local: {response.status_code} - {response.text}')
+    except Exception as e:
+        flash(f'No se pudo conectar con el servidor local: {str(e)}')
+
 
 # Ruta principal
 @app.route('/', methods=['GET', 'POST'])
@@ -57,7 +77,6 @@ def upload_file():
             flash('Correo electrónico no válido.')
             return redirect(request.url)
 
-        # Al menos uno de los archivos debe estar presente
         if not (factura or orden or remision):
             flash('Debe adjuntar al menos un archivo: Factura, Orden de Compra o Remisión.')
             return redirect(request.url)
@@ -87,13 +106,17 @@ def upload_file():
         try:
             guardar_correo_en_excel(email)
         except Exception as e:
-            flash(f'Error al guardar el correo en Excel: {str(e)}')
+            flash(f'Error al guardar el correo en Excel (Azure): {str(e)}')
+
+        try:
+            enviar_a_servidor_local(email, archivos)
+        except Exception as e:
+            flash(f'Error al enviar al servidor local: {str(e)}')
 
         flash(f'Se recibieron {archivos_guardados} archivo(s) correctamente de {email}.')
         return redirect(request.url)
 
     return render_template('formulario.html')
 
-# Iniciar servidor
 if __name__ == '__main__':
     app.run(debug=True)
