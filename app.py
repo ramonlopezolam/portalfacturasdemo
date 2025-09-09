@@ -10,7 +10,7 @@ app.secret_key = 'clave_secreta_para_flash'
 
 # Configuraciones
 UPLOAD_FOLDER = r'C:/Users/Administrador/OneDrive - Grupo OLAM Paraguay/Facturas_excel'
-EMAIL_EXCEL_FOLDER = os.path.join(UPLOAD_FOLDER, 'correos_excel')
+EMAIL_EXCEL_FOLDER = os.path.join(UPLOAD_FOLDER, 'Facturas_excel')
 EMAIL_EXCEL_FILE = os.path.join(EMAIL_EXCEL_FOLDER, 'correos.xlsx')
 ALLOWED_EXTENSIONS = {'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -42,7 +42,7 @@ def guardar_correo_en_excel(email):
 
 # NUEVO: Enviar a servidor local
 def enviar_a_servidor_local(email, archivos):
-    url_local = 'http://hybrydportalfacturas-app' # REEMPLAZA con la IP o nombre de Hybrid Connection
+    url_local = 'http://hybrydportalfacturas-app:5001/upload' # REEMPLAZA con la IP o nombre de Hybrid Connection
 
     files = {}
     for tipo, archivo in archivos.items():
@@ -118,5 +118,6 @@ def upload_file():
 
     return render_template('formulario.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run()
+
