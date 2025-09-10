@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, flash, redirect
+from flask import Flask, request, jsonify, render_template
 import re
 import requests
 
@@ -18,38 +18,36 @@ def enviar_a_servidor_local(email, archivos):
     headers = {
         'Authorization': 'Bearer 9f82a7f1-2341-456c-b812-9abcde123457'
     }
-    files = {}
     for tipo, archivo in archivos.items():
         if archivo and allowed_file(archivo.filename):
             archivo.stream.seek(0)
-            files['file'] = (archivo.filename, archivo.stream, 'application/pdf')  # Usar solo uno a la vez
+            files = {'file': (archivo.filename, archivo.stream, 'application/pdf')}
             data = {'email': email}
             response = requests.post(url, data=data, files=files, headers=headers)
             if response.status_code != 200:
                 raise Exception(f"{tipo} falló: {response.text}")
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        factura = request.files.get('factura')
-        orden = request.files.get('orden')
-        remision = request.files.get('remision')
-
-        if not email or not valid_email(email):
-            flash('Correo no válido')
-            return redirect(request.url)
-
-        archivos = {'Factura': factura, 'Orden': orden, 'Remision': remision}
-        try:
-            enviar_a_servidor_local(email, archivos)
-            flash('Archivos enviados correctamente.')
-        except Exception as e:
-            flash(f'Error: {str(e)}')
-
-        return redirect(request.url)
-
     return render_template('formulario.html')
+
+# ✅ API dedicada para subir archivos
+@app.route('/api/upload', methods=['POST'])
+def api_upload():
+    email = request.form.get('email')
+    factura = request.files.get('factura')
+    orden = request.files.get('orden')
+    remision = request.files.get('remision')
+
+    if not email or not valid_email(email):
+        return jsonify({'error': 'Correo no válido'}), 400
+
+    archivos = {'Factura': factura, 'Orden': orden, 'Remision': remision}
+    try:
+        enviar_a_servidor_local(email, archivos)
+        return jsonify({'mensaje': 'Archivos enviados correctamente'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run()
