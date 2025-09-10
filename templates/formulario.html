@@ -9,7 +9,6 @@
     .bg-primary { background-color: #2771c2 !important; }
   </style>
 </head>
-
 <body class="bg-light">
   <div class="container mt-5">
     <div class="row justify-content-center">
@@ -17,7 +16,7 @@
         <div class="card shadow">
           <div class="card-header bg-primary text-white d-flex align-items-center">
             <img src="static/img/Logo_caiasa.jpg" alt="Logo" style="height: 50px; margin-right: 15px;">
-            <h4 class="mb-0">Portal de facturas</h4>
+            <h4 class="mb-0">Portal de Facturas</h4>
           </div>
           <div class="card-body">
             <form id="invoiceForm" enctype="multipart/form-data">
@@ -69,7 +68,7 @@
       }, 5000);
     }
 
-    document.getElementById('invoiceForm').addEventListener('submit', function (e) {
+    document.getElementById('invoiceForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const email = document.getElementById('email').value.trim();
@@ -88,6 +87,10 @@
           mostrarAlerta("danger", `El archivo <strong>${archivo.name}</strong> no es un PDF válido.`);
           return;
         }
+        if (archivo.size > 5 * 1024 * 1024) {
+          mostrarAlerta("danger", `El archivo <strong>${archivo.name}</strong> excede los 5MB.`);
+          return;
+        }
       }
 
       const formData = new FormData();
@@ -96,23 +99,19 @@
       formData.append('orden', orden);
       formData.append('remision', remision);
 
-      fetch("/api/upload", {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
+      try {
+        const response = await fetch("/api/upload", { method: 'POST', body: formData });
         if (response.ok) {
-          mostrarAlerta("success", "Archivos enviados correctamente.");
+          const data = await response.json();
+          mostrarAlerta("success", data.message || "Archivos enviados correctamente.");
         } else {
-          response.json().then(data => {
-            mostrarAlerta("danger", "Error: " + (data.error || "Falló la carga"));
-          });
+          const data = await response.json();
+          mostrarAlerta("danger", "Error: " + (data.error || "Falló la carga"));
         }
-      })
-      .catch(error => {
-        mostrarAlerta("danger", "Error en la conexión.");
+      } catch (error) {
+        mostrarAlerta("danger", "Error de conexión. Intente nuevamente.");
         console.error(error);
-      });
+      }
     });
   </script>
 
