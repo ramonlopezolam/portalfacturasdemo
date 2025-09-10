@@ -8,7 +8,7 @@ def valid_email(email):
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
 def enviar_a_servidor_local(email, archivos):
-    url = "http://localhost/api/upload"
+    url = "http://68.211.9.0/api/upload"
     headers = {
         'Authorization': 'Bearer 9f82a7f1-2341-456c-b812-9abcde123457'
     }
