@@ -103,14 +103,15 @@
       .then(response => {
         if (response.ok) {
           mostrarAlerta("success", "Archivos enviados correctamente.");
-          this.reset(); // limpiar formulario
         } else {
-          mostrarAlerta("danger", "Error al enviar los archivos.");
+          response.json().then(data => {
+            mostrarAlerta("danger", "Error: " + (data.error || "Falló la carga"));
+          });
         }
       })
       .catch(error => {
-        console.error(error);
         mostrarAlerta("danger", "Error en la conexión.");
+        console.error(error);
       });
     });
   </script>
