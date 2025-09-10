@@ -8,15 +8,11 @@
   <style>
     .card {
       max-width: 500px;
-      /* ancho máximo fijo */
       margin: auto;
-      /* lo centra horizontalmente */
     }
 
-    /* Sobrescribir azul de Bootstrap */
     .bg-primary {
       background-color: #2771c2 !important;
-      /* azul marino */
     }
   </style>
 </head>
@@ -28,14 +24,13 @@
       <div class="col-12 col-md-8 col-lg-6">
         <div class="card shadow">
           <div class="card-header bg-primary text-white text-center">
-
             <div class="card-header bg-primary text-white d-flex align-items-center">
               <img src="static/img/Logo_caiasa.jpg" alt="Logo" style="height: 50px; margin-right: 15px;">
               <h4 class="mb-0">Portal de facturas</h4>
             </div>
-      
           </div>
           <div class="card-body">
+
             <!-- Flash messages -->
             {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -49,8 +44,8 @@
             {% endif %}
             {% endwith %}
 
-            <!-- Formulario -->
-            <form id="invoiceForm" method="POST" enctype="multipart/form-data">
+            <!-- ✅ Formulario corregido -->
+            <form id="invoiceForm" method="POST" action="/" enctype="multipart/form-data">
               <div id="mensajeError"></div>
 
               <div class="mb-3">
@@ -84,21 +79,19 @@
 
   <!-- JavaScript -->
   <script>
-    // Función para mostrar alertas con autocierre
     function mostrarAlerta(tipo, mensaje) {
       const mensajeError = document.getElementById('mensajeError');
       mensajeError.innerHTML = `
-    <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-      ${mensaje}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>`;
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+          ${mensaje}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
 
-      // Auto-cerrar después de 5 segundos
       setTimeout(() => {
         const alerta = mensajeError.querySelector(".alert");
         if (alerta) {
-          alerta.classList.remove("show"); // activa el fade-out
-          setTimeout(() => alerta.remove(), 500); // lo elimina del DOM
+          alerta.classList.remove("show");
+          setTimeout(() => alerta.remove(), 500);
         }
       }, 5000);
     }
@@ -121,7 +114,6 @@
         return;
       }
 
-      // Validar que todos los archivos seleccionados sean PDF
       const archivos = [factura, orden, remision].filter(Boolean);
       for (let archivo of archivos) {
         if (archivo.type !== "application/pdf" && !archivo.name.toLowerCase().endsWith(".pdf")) {
@@ -130,21 +122,21 @@
         }
       }
 
-      // Si pasa validaciones, enviar
       const formData = new FormData();
       formData.append('email', email);
       if (factura) formData.append('factura', factura);
       if (orden) formData.append('orden', orden);
       if (remision) formData.append('remision', remision);
 
-      fetch(this.action || window.location.href, {
+      // ✅ Se envía al endpoint `/` seguro
+      fetch("/", {
         method: 'POST',
         body: formData
       })
         .then(response => {
           if (response.ok) {
             mostrarAlerta("success", "Archivos enviados correctamente.");
-            this.reset(); // limpiar formulario
+            this.reset();
           } else {
             mostrarAlerta("danger", "Error al enviar los archivos.");
           }
@@ -154,7 +146,6 @@
           mostrarAlerta("danger", "Error en la conexión.");
         });
     });
-
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
