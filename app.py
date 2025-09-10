@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Configuraciones
 # ----------------------
 # Dirección interna de tu servidor local (Hybrid Connection)
-LOCAL_SERVER_URL = "http://LABJose:5001/api/upload"
+LOCAL_SERVER_URL = "portalfacturasdemo-ewgubrhgfje6cdge.chilecentral-01.azurewebsites.net"
 AUTH_TOKEN = "9f82a7f1-2341-456c-b812-9abcde123457"
 MAX_FILE_SIZE_MB = 5
 
