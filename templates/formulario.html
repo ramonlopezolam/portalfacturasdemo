@@ -93,6 +93,11 @@
         }
       }
 
+      const boton = this.querySelector("button[type='submit']");
+      boton.disabled = true;
+      const originalText = boton.textContent;
+      boton.textContent = "Subiendo... ⏳";
+
       const formData = new FormData();
       formData.append('email', email);
       formData.append('factura', factura);
@@ -104,6 +109,7 @@
         if (response.ok) {
           const data = await response.json();
           mostrarAlerta("success", data.message || "Archivos enviados correctamente.");
+          this.reset(); // Limpia el formulario
         } else {
           const data = await response.json();
           mostrarAlerta("danger", "Error: " + (data.error || "Falló la carga"));
@@ -111,6 +117,9 @@
       } catch (error) {
         mostrarAlerta("danger", "Error de conexión. Intente nuevamente.");
         console.error(error);
+      } finally {
+        boton.disabled = false;
+        boton.textContent = originalText;
       }
     });
   </script>
