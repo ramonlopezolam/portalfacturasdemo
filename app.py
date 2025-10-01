@@ -23,9 +23,38 @@ def valid_email(email):
     """Valida formato de correo electrónico."""
     return re.match(r"[^@]+@[^@]+\.[^@]+", email)
 
-def subir_a_blob(archivo, carpeta, id_entrada):
-    """Sube un archivo PDF al contenedor Blob con nombre basado en carpeta + id_entrada."""
+def get_next_id():
+    """Obtiene y actualiza un contador en counter.json en el contenedor."""
     blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
+    blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER, blob="metadata/counter.json")
+
+    try:
+        # Intentar leer el contador actual
+        data = blob_client.download_blob().readall()
+        counter = json.loads(data)
+        last_id = counter.get("last_id", 0)
+    except Exception:
+        # Si no existe el archivo, empezamos desde 0
+        last_id = 0
+
+    # Incrementar
+    new_id = last_id + 1
+
+    # Guardar nuevamente
+    counter = {"last_id": new_id}
+    blob_client.upload_blob(json.dumps(counter), overwrite=True)
+
+    return new_id
+
+
+def subir_a_blob(archivo, carpeta, id_entrada=None):
+    """Sube un archivo PDF al contenedor Blob con nombre basado en carpeta + ID autoincremental."""
+    blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
+
+    # Si no se pasó un id, generarlo
+    if id_entrada is None:
+        id_entrada = get_next_id()
+
     ext = os.path.splitext(archivo.filename)[1]  # conserva extensión (.pdf)
     blob_client = blob_service_client.get_blob_client(
         container=BLOB_CONTAINER,
@@ -33,6 +62,7 @@ def subir_a_blob(archivo, carpeta, id_entrada):
     )
     archivo.stream.seek(0)
     blob_client.upload_blob(archivo.stream, overwrite=True)
+    return id_entrada
 
 def subir_metadata(email, id_entrada):
     """Crea y sube un JSON con el correo y el IDEntrada a la carpeta metadata/."""
@@ -42,7 +72,7 @@ def subir_metadata(email, id_entrada):
         blob=f"metadata/metadata_{id_entrada}.json"
     )
     metadata = {
-        "IDEntrada": id_entrada,
+        "IDEntrada": str(id_entrada),   # 👈 Guardado como string
         "email": email,
         "fecha_subida": datetime.now().isoformat()
     }
@@ -66,10 +96,12 @@ def api_upload():
         return jsonify({"error": "Correo no válido"}), 400
 
     archivos = {"factura": factura, "orden": orden, "remision": remision}
-    id_entrada = datetime.now().strftime("%Y%m%d%H%M%S")  # ID único
 
     try:
-        # Subir los 3 PDF
+        # Generar ID único autoincremental (una sola vez)
+        id_entrada = get_next_id()
+
+        # Subir los 3 PDF usando el mismo id
         for tipo, archivo in archivos.items():
             if archivo and archivo.mimetype == "application/pdf":
                 subir_a_blob(archivo, tipo, id_entrada)
