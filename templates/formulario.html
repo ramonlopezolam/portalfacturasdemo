@@ -50,22 +50,40 @@
     </div>
   </div>
 
-  <!-- JS -->
   <script>
-    function mostrarAlerta(tipo, mensaje) {
+    function mostrarAlerta(tipo, mensaje, durationMs) {
       const mensajeError = document.getElementById('mensajeError');
+
+      let timeout = (typeof durationMs === 'number') ? durationMs : 5000;
+
+      if (tipo === 'success' && mensaje && mensaje.includes('Archivos enviados correctamente.')) {
+        timeout = 300000; 
+      }
+
       mensajeError.innerHTML = `
         <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
           ${mensaje}
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>`;
-      setTimeout(() => {
-        const alerta = mensajeError.querySelector(".alert");
-        if (alerta) {
+
+      const alerta = mensajeError.querySelector(".alert");
+      if (!alerta) return;
+
+      if (timeout > 0) {
+        const timerId = setTimeout(() => {
           alerta.classList.remove("show");
-          setTimeout(() => alerta.remove(), 500);
+          setTimeout(() => {
+            if (alerta.parentNode) alerta.remove();
+          }, 500);
+        }, timeout);
+
+        const closeBtn = alerta.querySelector('.btn-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => clearTimeout(timerId));
         }
-      }, 5000);
+
+        alerta.addEventListener('closed.bs.alert', () => clearTimeout(timerId));
+      }
     }
 
     document.getElementById('invoiceForm').addEventListener('submit', async function (e) {
@@ -108,8 +126,10 @@
         const response = await fetch("/api/upload", { method: 'POST', body: formData });
         if (response.ok) {
           const data = await response.json();
-          mostrarAlerta("success", data.message || "Archivos enviados correctamente.");
-          this.reset(); // Limpia el formulario
+          const id = data.ID_ENTRADA || data.id || null;
+          const msg = id ? `${data.message || "Archivos enviados correctamente."} N° de Referencia: ${id}` : (data.message || "Archivos enviados correctamente.");
+          mostrarAlerta("success", msg);
+          this.reset(); 
         } else {
           const data = await response.json();
           mostrarAlerta("danger", "Error: " + (data.error || "Falló la carga"));
