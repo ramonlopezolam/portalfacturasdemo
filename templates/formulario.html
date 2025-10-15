@@ -127,7 +127,7 @@
         if (response.ok) {
           const data = await response.json();
           const id = data.ID_ENTRADA || data.id || null;
-          const msg = id ? `${data.message || "Archivos enviados correctamente."} N° de Referencia: ${id}` : (data.message || "Archivos enviados correctamente.");
+          const msg = id ? `${data.message || "Archivos enviados correctamente, El proceso de revisión puede demorar de 24HS a 48HS."} N° de Referencia: ${id}` : (data.message || "Archivos enviados correctamente, El proceso de revisión puede demorar de 24HS a 48HS..");
           mostrarAlerta("success", msg);
           this.reset(); 
         } else {
