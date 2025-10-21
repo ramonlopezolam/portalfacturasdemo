@@ -7,6 +7,17 @@
   <style>
     .card { max-width: 500px; margin: auto; }
     .bg-primary { background-color: #2771c2 !important; }
+    .alert-fixed {
+      background-color: #ffe5d1;
+      color: #4a2c00;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      border: 1px solid #f0b07a;
+      border-top: none;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -18,6 +29,11 @@
             <img src="static/img/Logo_caiasa.jpg" alt="Logo" style="height: 50px; margin-right: 15px;">
             <h4 class="mb-0">Portal de Facturas</h4>
           </div>
+
+          <div class="alert-fixed">
+            El proceso de revisión puede demorar de <b>24 a 48 hs.</b>
+          </div>
+
           <div class="card-body">
             <form id="invoiceForm" enctype="multipart/form-data">
               <div id="mensajeError"></div>
@@ -63,13 +79,6 @@
           ${mensaje}
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>`;
-
-      if (tipo === 'success') {
-        alertHTML += `
-          <div class="alert alert-warning mt-2 fade show" role="alert" style="background-color: #fff3cd; color: #856404;">
-            El proceso de revisión puede demorar de <b>24HS a 48HS</b>.
-          </div>`;
-      }
 
       mensajeError.innerHTML = alertHTML;
 
