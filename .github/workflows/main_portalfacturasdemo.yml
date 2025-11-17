@@ -1,7 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python app to Azure Web App - portalfacturasdemo
 
 on:
@@ -58,9 +54,19 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4A79305F2BF544C3B5D932184D8CBA61 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_728162A47389440D9FAD155FBE553BCF }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BE26922356FB46AB9FA4494785186CC2 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Configure App Service settings (inject SHAREPOINT_CLIENT_SECRET)
+        run: |
+          # Requires these secrets to exist in the repo:
+          #   - AZURE_RESOURCE_GROUP
+          #   - SHAREPOINT_CLIENT_SECRET
+          az webapp config appsettings set \
+            --name 'portalfacturasdemo' \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --settings "SHAREPOINT_CLIENT_SECRET=${{ secrets.SHAREPOINT_CLIENT_SECRET }}"
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -68,4 +74,3 @@ jobs:
         with:
           app-name: 'portalfacturasdemo'
           slot-name: 'Production'
-          
