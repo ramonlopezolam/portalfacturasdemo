@@ -51,12 +51,14 @@ jobs:
         with:
           name: python-app
       
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          auth-type: SERVICE_PRINCIPAL
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4A79305F2BF544C3B5D932184D8CBA61 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_728162A47389440D9FAD155FBE553BCF }}
+          client-secret: ${{ secrets.SHAREPOINT_CLIENT_SECRET }}
+
 
       - name: Configure App Service settings (inject SHAREPOINT_CLIENT_SECRET)
         run: |
@@ -74,3 +76,4 @@ jobs:
         with:
           app-name: 'portalfacturasdemo'
           slot-name: 'Production'
+
