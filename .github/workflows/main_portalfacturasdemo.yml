@@ -58,7 +58,7 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4A79305F2BF544C3B5D932184D8CBA61 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_728162A47389440D9FAD155FBE553BCF }}
           client-secret: ${{ secrets.SHAREPOINT_CLIENT_SECRET }}
-
+          allow-no-subscriptions: true
 
       - name: Configure App Service settings (inject SHAREPOINT_CLIENT_SECRET)
         run: |
@@ -76,4 +76,5 @@ jobs:
         with:
           app-name: 'portalfacturasdemo'
           slot-name: 'Production'
+
 
